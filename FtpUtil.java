@@ -531,4 +531,41 @@ public class FtpUtil {
         }
         return cellValue;
     }
+    
+    /**
+     * 删除FTP上的文件
+     *
+     * @param ftpDirAndFileName 路径从根目录开始/，/test/filename1 需要添加根目录！Sunk 2018-04-26 16:12)
+     * @return
+     */
+    public static boolean deleteFile(String host, int port, String username, String password,String ftpDirAndFileName) {
+        boolean result = false;
+        FTPClient ftp = new FTPClient();
+        try {
+            int reply;
+            ftp.connect(host, port);// 连接FTP服务器
+            // 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
+            ftp.login(username, password);// 登录
+            reply = ftp.getReplyCode();
+            if (!FTPReply.isPositiveCompletion(reply)) {
+                ftp.disconnect();
+                return result;
+            }
+            System.out.println("要删除的目录文件："+ftpDirAndFileName);
+            if(ftpDirAndFileName.indexOf(".")<=0){
+                return result;
+            }
+            result=ftp.deleteFile(new String(ftpDirAndFileName.getBytes(LOCAL_CHARSET),SERVER_CHARSET));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (ftp.isConnected()) {
+                try {
+                    ftp.disconnect();
+                } catch (IOException ioe) {
+                }
+            }
+        }
+        return result;
+    }
 }
